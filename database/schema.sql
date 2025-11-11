@@ -50,10 +50,7 @@ CREATE TABLE IF NOT EXISTS business_contacts (
     is_main BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    CONSTRAINT one_main_contact CHECK (
-        (is_main = FALSE) OR 
-        (is_main = TRUE AND (SELECT COUNT(*) FROM business_contacts bc2 WHERE bc2.user_id = business_contacts.user_id AND bc2.is_main) <= 1)
-    )
+    
 );
 
 -- Índices para contactos
@@ -77,10 +74,7 @@ CREATE TABLE IF NOT EXISTS business_addresses (
     is_public BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    CONSTRAINT one_main_address CHECK (
-        (is_main = FALSE) OR 
-        (is_main = TRUE AND (SELECT COUNT(*) FROM business_addresses ba2 WHERE ba2.user_id = business_addresses.user_id AND ba2.is_main) <= 1)
-    )
+    
 );
 
 -- Índices para direcciones
@@ -114,9 +108,6 @@ CREATE TABLE IF NOT EXISTS events (
 CREATE INDEX IF NOT EXISTS idx_events_creator ON events(creator_id);
 CREATE INDEX IF NOT EXISTS idx_events_date ON events(start_date);
 CREATE INDEX IF NOT EXISTS idx_events_type ON events(event_type);
-CREATE INDEX IF NOT EXISTS idx_events_city ON events USING GIN (
-    (SELECT city FROM business_addresses WHERE id = events.address_id)
-) WHERE address_id IS NOT NULL;
 
 -- =============================================
 -- TRIGGERS: actualizar updated_at
