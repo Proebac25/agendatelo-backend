@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${SUPABASE_URL}
+    url: ${SPRING_DATASOURCE_URL}
     username: postgres
     password: ${SUPABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
