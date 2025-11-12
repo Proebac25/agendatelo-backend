@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: ${SUPABASE_URL}
+    username: postgres
+    password: ${SUPABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
