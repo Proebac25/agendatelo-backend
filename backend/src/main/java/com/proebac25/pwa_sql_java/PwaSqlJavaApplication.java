@@ -20,15 +20,34 @@ public class PwaSqlJavaApplication {
     @Bean
     CommandLineRunner initData(UserRepository userRepository) {
         return args -> {
-            User user = new User();
-            user.setFull_name("Miguel García");
-            user.setEmail("miguel@example.com");
-            user.setPhone("123456789");
-            user.setLocation_city("Madrid");
-            user.setBio_description("Desarrollador PWA");
-            user.setIs_active(true);
-            user.setVerified(true);
-            userRepository.save(user);
+            try {
+                final String seedEmail = "miguel@example.com";
+
+                // Comprobación idempotente usando métodos garantizados por JpaRepository
+                boolean exists = userRepository.findAll()
+                        .stream()
+                        .anyMatch(u -> seedEmail.equalsIgnoreCase(u.getEmail()));
+
+                if (!exists) {
+                    User user = new User();
+                    // Usa los setters según tu entidad
+                    user.setFull_name("Miguel García");
+                    user.setEmail(seedEmail);
+                    user.setPhone("123456789");
+                    user.setLocation_city("Madrid");
+                    user.setBio_description("Desarrollador PWA");
+                    user.setIs_active(true);
+                    user.setVerified(true);
+
+                    userRepository.save(user);
+                    System.out.println("Seed user created: " + seedEmail);
+                } else {
+                    System.out.println("Seed user already exists: " + seedEmail);
+                }
+            } catch (Exception ex) {
+                // No interrumpir el arranque por problemas en la semilla
+                System.err.println("Init seed skipped (non-fatal): " + ex.getMessage());
+            }
         };
     }
 
@@ -37,8 +56,11 @@ public class PwaSqlJavaApplication {
         @Override
         public void addCorsMappings(CorsRegistry registry) {
             registry.addMapping("/api/**")
-                    .allowedOrigins("http://localhost:3000")
-                    .allowedMethods("GET", "POST", "PUT", "DELETE")
+                    .allowedOrigins(
+                        "http://localhost:3000",
+                        "https://agendatelo-frontend.vercel.app"
+                    )
+                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                     .allowCredentials(true);
         }
     }
